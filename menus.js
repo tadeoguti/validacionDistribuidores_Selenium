@@ -135,16 +135,16 @@ const fs = require('fs');
   /*
   Funcion para hacer tiempos de espera
  */
-  async function delay(ms) {
+    async function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
-  }
+    }
 
-  async function closeNavegador() {
+    async function closeNavegador() {
     console.log("Cerrando el navegador...");
     await driver.quit();
-  }
+     }
 
-  async function findItem(item, tipo,url) {
+    async function findItem(item, tipo,url) {
     try {
         await delay(2000);
         // Buscar el elemento según el tipo
@@ -170,9 +170,9 @@ const fs = require('fs');
         console.error(`❌ Error al encontrar el elemento ${item} - (${tipo}) - ${url} :`,error.message);
         return null;
     }
-  }
+    }
 
-  async function processMainMenuItems(item, type, url) {
+    async function processMainMenuItems(item, type, url) {
       try {
         await driver.get(url);
         await delay(5000);
@@ -374,115 +374,6 @@ const fs = require('fs');
             return {};
         }
     } 
-
- /*  async function groupBySite(array) {
-        try {
-            return array.reduce((acc, item) => {
-                const sitio = item.url.trim(); 
-                if (!acc[sitio]) {
-                    acc[sitio] = [];
-                }
-                acc[sitio].push(item);
-                return acc;
-            }, {});
-        } catch (error) {
-            console.error("❌ Error al agrupar por sitio:", error);
-            return {};
-        }
-     
-    }*/
-   
- /* async function compareArrays(baseArray, compareArray) {
-        try {
-            for (let i = 0; i < baseArray.length; i++) {
-                const itemBase = baseArray[i];
-                const itemCompare = compareArray[i];
-
-                if(!itemCompare) {
-                    console.log(`❌ No se encontró el elemento de comparación para el índice ${i}`);
-                    results.push({
-                        indice: i,
-                        url_compare: itemCompare.url,
-                        matches: 0,
-                        porcentaje: "0%",
-                        detalle: {
-                            optionMenu: false,
-                            linkOptionMenu: false,
-                            subOptionMenu: false,
-                            linkSuboptionMenu: false
-                        }
-                    });
-                    continue;
-                }
-                const result = compareItems(itemBase, itemCompare);
-                results.push({
-                    indice: i,
-                    url_compare: itemCompare.url,
-                    matches: result.matches,
-                    porcentaje: result.porcentaje,
-                    detalle: result.detalle
-                });
-            }
-            //return results;
-            return {
-                resultadosPorRegistro: results,
-                totalComparaciones: results.length
-            };
-        } catch (error) {
-            console.error("❌ Error al comparar arreglos:", error);
-        }
-    }*/
-   
-   /* async function compareArrays(baseArray, compareArray) {
-        try {
-            const totalurl_Base = await contarUrls(baseArray);
-            const totalurl_Compare = await contarUrls(compareArray);
-
-            for (let i = 0; i < totalurl_Compare.length; i++) {          
-                
-                
-                
-                for (let j = 0; j < totalurl_Base[0].Total; j++) {
-                    let itemBase = baseArray[j];
-                    let itemCompare = compareArray[j];
-                    if (totalurl_Compare[i].Total === totalurl_Base[0].Total) { 
-
-                        if(!itemCompare) {
-                            console.log(`❌ No se encontró el elemento de comparación para el índice ${i}`);
-                            results.push({
-                                indice: i,
-                                url_compare: itemCompare.url,
-                                matches: 0,
-                                porcentaje: "0%",
-                                detalle: {
-                                    optionMenu: false,
-                                    linkOptionMenu: false,
-                                    subOptionMenu: false,
-                                    linkSuboptionMenu: false
-                                }
-                            });
-                            continue;
-                        }
-                        const result = await compareItems(itemBase, itemCompare);
-                        results.push({
-                            indice: i,
-                            url_compare: itemCompare.url,
-                            matches: result.matches,
-                            porcentaje: result.porcentaje,
-                            detalle: result.detalle
-                        });
-
-                    }
-                    
-                }
-            }
-            
-        } catch (error) {
-            console.error("❌ Error al comparar arreglos:", error);
-        }
-    }
-*/
-   
    
     async function compareArrays(baseArray, compareArray) {
         const agrupados = await groupBySite(compareArray);
