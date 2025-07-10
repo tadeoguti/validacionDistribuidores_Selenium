@@ -32,11 +32,13 @@ const fs = require('fs');
     // Listado de URLs a comparar
     const urlsToCompare = [
     "https://lincolnsurmanbc.mx",
+    "https://www.lincoln.mx/",
     "https://lincolncancun.mx",
     "https://lincolnpasacondesa.mx",
-    "https://lincolncountryaguascalientes.mx",
-    "https://lincolncountryguadalajara.mx",
     "https://demo.lincolncountryqueretaro.netcar.com.mx",
+    "https://lincolnmty.mx",
+    /*"https://lincolncountryaguascalientes.mx",
+    "https://lincolncountryguadalajara.mx",
     "https://lincolndisauto.mx",
     "https://lincolnprodauto.mx",
     "https://lincolnhermosillo.mx",
@@ -44,7 +46,7 @@ const fs = require('fs');
     "https://lincolninterlomasgp.mx",
     "https://lincolnlaguna.mx",
     "https://lincolnleon.mx",
-    "https://lincolnmty.mx",
+    
     "https://lincolnmtylindavista.com",
     "https://lincolnpasajuarez.mx",
     "https://lincolnjaliscomotors.mx",
@@ -55,9 +57,9 @@ const fs = require('fs');
     "https://lincolnatcsa.mx",
     "https://www.lincolnveracruz.mx",
     "https://lincolnyucatan.mx",
-    "https://lincolnzapatazonaesmeralda.mx/"
+    "https://lincolnzapatazonaesmeralda.mx/"*/
     ];
-    const optionsMenuBase = [],optionsMenuToCompare = [], results = [];
+    const optionsMenuBase = [],optionsMenuToCompare = [], results = [],resultados = [] ;
 
     console.log("═══════════════════════════════════════");
     await delay(2000);
@@ -66,21 +68,21 @@ const fs = require('fs');
     //Obtener El menu, opciones y links del sitio base.
     await processMainMenuItems(classPrincipalMenu,`class`,basePageUrl);
     console.log("═══════════════════════════════════════");
-    console.log(`Validación de los Links a Comparar: `);
+    console.log(`Validación de los Links a Comparar `);
     //Obtener el menu, opciones y links de los sitios a comparar
     await checkUrlsToCompare(classPrincipalMenu,`class`,urlsToCompare);
 
     console.log("═══════════════════════════════════════");
     console.log(`Guardando en .json los arreglos SitioBase y SitioToCompare...`);
     //console.log(optionsMenuBase);
-    //let groupedMenuBase = await groupBySite(optionsMenuBase);
+    let groupedMenuBase = await groupBySite(optionsMenuBase);
     await saveArray(optionsMenuBase,`SitioBase`);
-    //await saveArray(groupedMenuBase,`SitioBase2`);
+    await saveArray(groupedMenuBase,`SitioBase2`);
     console.log(` `);
     //console.log(`Agrupando resultados del sitio a comparar...`);
     let groupedMenuToCompare = await groupBySite(optionsMenuToCompare);
-    await saveArray(groupedMenuToCompare,`SitioToCompare-Agrupado`);
     await saveArray(optionsMenuToCompare,`SitioToCompare`);
+    await saveArray(groupedMenuToCompare,`SitioToCompare-Agrupado`);
     console.log("═══════════════════════════════════════");
     console.log(`Total de registros del Sitio Base: ${optionsMenuBase.length}`);
     console.log(`Total de registros del Sitio a Comparar: ${optionsMenuToCompare.length}`);
@@ -102,15 +104,30 @@ const fs = require('fs');
     //await saveArray(compareResults,`ResultadosComparacion`);    
 
     console.log("═══════════════════════════════════════");
+    console.log("Impresión de los arrays base y a comparar");
     console.log("");
     const TotalUrls_Base = await contarUrls(optionsMenuBase);
     const TotalUrls_Compare = await contarUrls(optionsMenuToCompare);    
-    console.log(`Total de URLs en el Sitio Base: ${TotalUrls_Base.length}`);
+    console.log(`Total de URLs en el Sitio Base y la cantidad de objetos en su menu: ${TotalUrls_Base.length}`);
     console.log(TotalUrls_Base);
-    console.log(`Total de URLs en el Sitio a Comparar: ${TotalUrls_Compare.length}`);
+    console.log("═══════════════════════════════════════");
+    console.log(`Total de URLs Comparadas y la cantidad de objetos en su menu: ${TotalUrls_Compare.length}`);
     console.log(TotalUrls_Compare);
 
+    console.log("═══════════════════════════════════════");
+    console.log(`Total de Objetos en el menu del Sitio Base: ${TotalUrls_Base[0].Total}`);
+    console.log(`${TotalUrls_Compare.length} URLs a comparar`);
 
+    console.log("═══════════════════════════════════════");
+    //console.log(`Comparando los objetos del menu del Sitio Base con los del Sitio a Comparar...`);
+    //await compareObjects(groupedMenuBase, groupedMenuToCompare);
+    console.log(`Comparando los Arrays del menu del Sitio Base con los del Sitio a Comparar...`);
+    await compareArrays(optionsMenuBase, optionsMenuToCompare);
+
+    console.log("═══════════════════════════════════════");
+    console.log(`Total de Comparaciones realizadas: ${resultados.length}`);
+    console.log("results: ", resultados);
+    await saveArray(resultados, `ResultadosComparacionFinal`);
     console.log("═══════════════════════════════════════");
 
     await closeNavegador();
@@ -150,27 +167,7 @@ const fs = require('fs');
         await driver.wait(until.elementIsVisible(element), 5000);
         return element;
     } catch (error) {
-        console.error(`❌ Error al encontrar el elemento ${item} (${tipo}):`,error.message);
-        //Guardar datos al array que corresponde  
-        if (url === basePageUrl) {
-            //Guardado de las opciones del Menu de Sitio Base                                
-            optionsMenuBase.push({
-                url: url,
-                optionMenu:  `Menu Principal de este sitio No Coincide con lo introducido `,
-                linkOptionMenu: ``,
-                subOptionMenu: ``,
-                linkSuboptionMenu: ``,
-            });
-        }else {
-            //Guardado de las opciones del Menu del sitio a Comparar 
-            optionsMenuToCompare.push({
-                url: url,
-                optionMenu:  `Menu Principal de este sitio No Coincide con el sitio Base`,
-                linkOptionMenu: ``,
-                subOptionMenu: ``,
-                linkSuboptionMenu: ``,
-            });
-        }  
+        console.error(`❌ Error al encontrar el elemento ${item} - (${tipo}) - ${url} :`,error.message);
         return null;
     }
   }
@@ -188,10 +185,50 @@ const fs = require('fs');
             await listLinksMenu(linksPrincipales,opcionesPrincipales,url);
         }else{
             console.log(`❌❌El MENU PRINCIPAL NO HACE MATCH CON LA CLASE DEL SITIO BASE - Menu= ${menu}`);    
+            //Guardar datos al array que corresponde  
+            if (url === basePageUrl) {
+                //Guardado de las opciones del Menu de Sitio Base                                
+                optionsMenuBase.push({
+                    url: url,
+                    optionMenu:  `Menu Principal de este sitio No Coincide con lo introducido `,
+                    linkOptionMenu: ``,
+                    subOptionMenu: ``,
+                    linkSuboptionMenu: ``,
+                });
+            }else {
+                //Guardado de las opciones del Menu del sitio a Comparar 
+                optionsMenuToCompare.push({
+                    url: url,
+                    optionMenu:  ``,
+                    linkOptionMenu: ``,
+                    subOptionMenu: ``,
+                    linkSuboptionMenu: ``,
+                });
+            }
         }
         
       } catch (error) {
-        console.log("❌Error al Identificar el Menu: ", error);
+        console.log("❌Error al Identificar el Menu: Posible error Sitio Caido");
+         //Guardar datos al array que corresponde  
+        if (url === basePageUrl) {
+            //Guardado de las opciones del Menu de Sitio Base                                
+            optionsMenuBase.push({
+                url: url,
+                optionMenu:  `Menu Principal de este sitio No Coincide con lo introducido `,
+                linkOptionMenu: ``,
+                subOptionMenu: ``,
+                linkSuboptionMenu: ``,
+            });
+        }else {
+            //Guardado de las opciones del Menu del sitio a Comparar 
+            optionsMenuToCompare.push({
+                url: url,
+                optionMenu:  ``,
+                linkOptionMenu: ``,
+                subOptionMenu: ``,
+                linkSuboptionMenu: ``,
+            });
+        }
       }
     }
 
@@ -221,8 +258,8 @@ const fs = require('fs');
                             try {
                                 let subOptionText = (await subOption.getText()).trim();
                                 let subOptionLink = await subOption.getAttribute('href');
-                                console.log(` ${j+1}- ${subOptionText || '[Texto vacío]'} -> ${subOptionLink}`);
-                                console.log(` `); 
+                                //console.log(` ${j+1}- ${subOptionText || '[Texto vacío]'} -> ${subOptionLink}`);
+                                //console.log(` `); 
                                 //Guardar datos al array que corresponde  
                                 if (url === basePageUrl) {
                                     //Guardado de las opciones del Menu de Sitio Base                                
@@ -244,7 +281,7 @@ const fs = require('fs');
                                         linkSuboptionMenu: subOptionLink
                                     });
                                 }  
-                                console.log(`✅ SubOpcion #${j + 1} -> OK ✅`);
+                               // console.log(`✅ SubOpcion #${j + 1} -> OK ✅`);
                             } catch (error) {
                                 console.error(`    - Error obteniendo texto de subopción #${j + 1}:`, err.message);
                             }
@@ -256,7 +293,7 @@ const fs = require('fs');
                     await linkPrincipal.click();
                 }else {
                     //console.log(`Opción #${i + 1} es una opción Simple`);
-                    console.log(`✅ Opcion #${i + 1} -> OK ✅`);
+                    //console.log(`✅ Opcion #${i + 1} -> OK ✅`);
                     console.log(` `);
                     //Guardado de las opciones del Menu 
                     if (url === basePageUrl) {
@@ -290,11 +327,11 @@ const fs = require('fs');
     async function checkUrlsToCompare(item,type,urls) {
         try {
             console.log(`📋 Total de Urls a Comparar: ${urls.length}`);
-            console.log(`Revisión de diferencias en los menus`);
+            console.log(`Obtener los menus de los sitios a comparar...`);
             for (let i = 0; i < urls.length; i++) {
                 let currentUrl = urls[i];
                 console.log("═══════════════════════════════════════");
-                console.log(`⚙️-🔢 Comparación ${i + 1} de total ${urls.length} `);
+                console.log(`⚙️-🔢 Revisión del menu del sitio a comparar ${i + 1} de ${urls.length} `);
                 console.log(`url del sitio a comparar -> ${currentUrl}`);
                 //Obtener el menu del sitio a comparar 
                 await processMainMenuItems(item,type,currentUrl);   
@@ -319,6 +356,28 @@ const fs = require('fs');
     async function groupBySite(array) {
         try {
             return array.reduce((acc, item) => {
+                // Limpiar la URL para usarla como clave
+                const sitio = item.url.trim(); 
+
+                // Crear una copia del item sin el campo 'url'
+                const { url, ...itemSinUrl } = item;
+                // Inicializar el grupo si no existe
+                if (!acc[sitio]) {
+                    acc[sitio] = [];
+                }
+                // Agregar el item sin 'url' al grupo correspondiente
+                acc[sitio].push(itemSinUrl);
+                return acc;
+            }, {});
+        } catch (error) {
+            console.error("❌ Error al agrupar por sitio:", error);
+            return {};
+        }
+    } 
+
+ /*  async function groupBySite(array) {
+        try {
+            return array.reduce((acc, item) => {
                 const sitio = item.url.trim(); 
                 if (!acc[sitio]) {
                     acc[sitio] = [];
@@ -331,49 +390,9 @@ const fs = require('fs');
             return {};
         }
      
-    }
-
-    async function extractPath(url) {
-        try {
-            const urlObj = new URL(url.trim());
-            return urlObj.pathname;
-        } catch (e) {
-            console.error("❌ Error al extraer el path de la URL:", e);
-            // Si ocurre un error, retornar la URL original
-            return url.trim();
-        }        
-    }
-
-    async function compareItems(base, compare) {
-        try {
-            let matches = 0;
-            const expectedFields = 4;
-
-            if (base.optionMenu.trim() === compare.optionMenu.trim()) matches++;
-            if (extractPath(base.linkOptionMenu) === extractPath(compare.linkOptionMenu)) matches++;
-            if (base.subOptionMenu.trim() === compare.subOptionMenu.trim()) matches++;
-            if (extractPath(base.linkSuboptionMenu) === extractPath(compare.linkSuboptionMenu)) matches++;
-
-            const matchRate = ((matches / expectedFields) * 100).toFixed(2);
-
-            return {
-                url_compare: compare.url,
-                matches,
-                porcentaje: `${matchRate}%`,
-                detalle: {
-                    optionMenu: base.optionMenu === compare.optionMenu,
-                    linkOptionMenu: extractPath(base.linkOptionMenu) === extractPath(compare.linkOptionMenu),
-                    subOptionMenu: base.subOptionMenu.trim() === compare.subOptionMenu.trim(),
-                    linkSuboptionMenu: extractPath(base.linkSuboptionMenu) === extractPath(compare.linkSuboptionMenu)
-                }
-            };
-        } catch (error) {
-            console.error("❌ Error al comparar registros:", error);
-            return false;
-        }
-    }
-
-   /* async function compareArrays(baseArray, compareArray) {
+    }*/
+   
+ /* async function compareArrays(baseArray, compareArray) {
         try {
             for (let i = 0; i < baseArray.length; i++) {
                 const itemBase = baseArray[i];
@@ -414,22 +433,120 @@ const fs = require('fs');
         }
     }*/
    
-    async function compareArrays(baseArray, compareArray) {
+   /* async function compareArrays(baseArray, compareArray) {
         try {
             const totalurl_Base = await contarUrls(baseArray);
             const totalurl_Compare = await contarUrls(compareArray);
 
-            for (let i = 0; i < totalurl_Compare.length; i++) {                
+            for (let i = 0; i < totalurl_Compare.length; i++) {          
                 
-                for (let j = 0; j < baseArray.length; j++) {
-                    let itemBase = baseArrayrray[j];
+                
+                
+                for (let j = 0; j < totalurl_Base[0].Total; j++) {
+                    let itemBase = baseArray[j];
                     let itemCompare = compareArray[j];
+                    if (totalurl_Compare[i].Total === totalurl_Base[0].Total) { 
+
+                        if(!itemCompare) {
+                            console.log(`❌ No se encontró el elemento de comparación para el índice ${i}`);
+                            results.push({
+                                indice: i,
+                                url_compare: itemCompare.url,
+                                matches: 0,
+                                porcentaje: "0%",
+                                detalle: {
+                                    optionMenu: false,
+                                    linkOptionMenu: false,
+                                    subOptionMenu: false,
+                                    linkSuboptionMenu: false
+                                }
+                            });
+                            continue;
+                        }
+                        const result = await compareItems(itemBase, itemCompare);
+                        results.push({
+                            indice: i,
+                            url_compare: itemCompare.url,
+                            matches: result.matches,
+                            porcentaje: result.porcentaje,
+                            detalle: result.detalle
+                        });
+
+                    }
                     
                 }
             }
             
         } catch (error) {
             console.error("❌ Error al comparar arreglos:", error);
+        }
+    }
+*/
+   
+   
+    async function compareArrays(baseArray, compareArray) {
+        const agrupados = await groupBySite(compareArray);
+
+        for (const [url, grupo] of Object.entries(agrupados)) {
+            if (grupo.length === 1) {
+            resultados.push({
+                url,
+                porcentajeCoincidencia: "0%",
+                mensaje: "Solo un registro para esta URL - no se puede comparar",
+                faltantesEnBase: baseArray,
+                extrasEnCompare: grupo
+            });
+            continue;
+            }
+
+            let matchesCount = 0;
+            const faltantesEnBase = [];
+            const extrasEnCompare = [];
+            console.log(`Comparando URL: ${url}`);
+            console.log(`Total de registros a comparar: ${grupo.length}`);
+            baseArray.forEach(baseItem => {
+                const baseKey = `${baseItem.optionMenu.trim()}|${urlPath(baseItem.linkOptionMenu)}|${baseItem.subOptionMenu.trim()}|${urlPath(baseItem.linkSuboptionMenu)}`;
+                const encontrado = grupo.some(compareItem => {
+                    const compareKey = `${compareItem.optionMenu.trim()}|${urlPath(compareItem.linkOptionMenu)}|${compareItem.subOptionMenu.trim()}|${urlPath(compareItem.linkSuboptionMenu)}`;
+                    return baseKey === compareKey;
+                });
+            if (encontrado) {
+                matchesCount++;
+            } else {
+                faltantesEnBase.push(baseItem);
+            }
+            });
+
+            grupo.forEach(compareItem => {
+            const compareKey = `${compareItem.optionMenu.trim()}|${urlPath(compareItem.linkOptionMenu)}|${compareItem.subOptionMenu.trim()}|${urlPath(compareItem.linkSuboptionMenu)}`;
+            const existeEnBase = baseArray.some(baseItem => {
+                const baseKey = `${baseItem.optionMenu.trim()}|${urlPath(baseItem.linkOptionMenu)}|${baseItem.subOptionMenu.trim()}|${urlPath(baseItem.linkSuboptionMenu)}`;
+                return baseKey === compareKey;
+            });
+            if (!existeEnBase) {
+                extrasEnCompare.push(compareItem);
+            }
+            });
+            let matchesTotal= (matchesCount - extrasEnCompare.length);
+            const porcentaje = ((matchesTotal / baseArray.length) * 100).toFixed(2) + "%";
+                        
+            resultados.push({
+            url,
+            porcentajeCoincidencia: porcentaje,
+            faltantesEnBase,
+            extrasEnCompare,
+            mensaje: "Comparación realizada"
+            });
+        }
+
+        return resultados;
+    }
+     
+    async function urlPath(url) {
+         try {
+            return new URL(url.trim()).pathname;
+        } catch {
+            return url?.trim() || "";
         }
     }
 
@@ -461,3 +578,4 @@ const fs = require('fs');
         
 
 })();
+// Nota: Este código es un ejemplo y puede requerir ajustes según la estructura real de los sitios web y sus menús.
