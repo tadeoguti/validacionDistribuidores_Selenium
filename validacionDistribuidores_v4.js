@@ -4,8 +4,6 @@ const fs = require('fs');
 const path = require("path");
 const resemble = require("resemblejs");
 const ExcelJS = require("exceljs");
-//const { take, get } = require("lodash");
-
 
 (async function main() { 
   try {
@@ -21,7 +19,10 @@ const ExcelJS = require("exceljs");
     //Configurar el navegador de manera oculta
     let options = new firefox.Options();
     options.addArguments("-headless");
-    const driver = await new Builder().forBrowser("firefox").setFirefoxOptions(options).build();
+    //const driver = await new Builder().forBrowser("firefox").setFirefoxOptions(options).build();
+    const driver = await new Builder().forBrowser("firefox").build();
+    
+    
 
     // Configuración de variables
     //* Página base para comparar
@@ -43,7 +44,6 @@ const ExcelJS = require("exceljs");
     "https://lincolninterlomasgp.mx",
     "https://lincolnlaguna.mx",
     "https://lincolnleon.mx",
-    
     "https://lincolnmtylindavista.com",
     "https://lincolnpasajuarez.mx",
     "https://lincolnjaliscomotors.mx",
@@ -216,6 +216,8 @@ const ExcelJS = require("exceljs");
 
     async function processMainMenuItem(item, type, url) {
       try {
+        const totalheight = await driver.executeScript(`return document.body.scrollHeight`);
+        await driver.manage().window().setRect({ width: 1920, height: totalheight });
         await driver.get(url);
         await delay(2500);
         let menu = await findItem(item,type,url);
@@ -561,7 +563,7 @@ const ExcelJS = require("exceljs");
           console.log(`🔍 Realizando prueba visual Home de los sitios...`);
           console.log(`⚙️-🔢 Validando Visual del sitio a comparar ${index + 1} de ${TotalUrls_Compare.length} `);
           console.log(`url del sitio a comparar -> ${url}`);
-          console.log("-------------------------------------------------------");
+          //console.log("-------------------------------------------------------");
           //Captura de pantalla del home
           let pathBaseFileHome = path.join(screenshotDir, `Captura_HomeBase_${urlBase}.png`);
           let pathCompareFileHome = path.join(screenshotDir, `Captura_HomeComparativa_${folderSlug}.png`);
@@ -596,6 +598,7 @@ const ExcelJS = require("exceljs");
 
             if (!baseItem.linkOptionMenu && !compareItem.linkOptionMenu) {
               //! Captura de pantalla de la Sub opción del menu
+              console.log(`📍 url del sitio a comparar -> ${compareItem.linkSuboptionMenu}`);
               console.log(`Capturando pantalla de la opción del menu -> ${baseItem.optionMenu.trim()} - ${baseItem.subOptionMenu.trim()}`);
               let pathBaseSubOptionMenu = path.join(screenshotDir, `Captura_SubMenu_${sanitizeFileName(baseItem.subOptionMenu.trim())}_Base.png`);
               let pathCompareSubOptionMenu = path.join(screenshotDir, `Captura_SubMenu_${sanitizeFileName(compareItem.subOptionMenu.trim())}_Comparativa.png`);
@@ -640,7 +643,8 @@ const ExcelJS = require("exceljs");
               totalComparaciones++;
               continue;
             } else {
-               //! Captura de pantalla de la opción del menu
+              //! Captura de pantalla de la opción del menu
+              console.log(`📍 url del sitio a comparar -> ${compareItem.linkOptionMenu}`);
               console.log(` Capturando pantalla de la opción del menu: ${baseItem.optionMenu.trim()}`);
               let pathBaseOptionMenu = path.join(screenshotDir, `Captura_Menu_${sanitizeFileName(baseItem.optionMenu.trim())}_Base.png`);
               let pathCompareOptionMenu = path.join(screenshotDir, `Captura_Menu_${sanitizeFileName(compareItem.optionMenu.trim())}_Comparativa.png`);
